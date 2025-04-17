@@ -1,11 +1,11 @@
 import customtkinter as ctk
 from ui.theme import setup_theme
-from ui.widgets import create_editor, create_output, create_menu
+from ui.widgets import create_editor, create_output, create_menu, create_status_bar
 from utils.highlighter import highlight
 
 app = ctk.CTk()
-app.geometry("1000x750")
-app.title("C Code Editor & Runner")
+app.geometry("1200x750")
+app.title("ChiX - C Code Editor & Runner")
 
 setup_theme()
 
@@ -14,6 +14,9 @@ state = {
     "current_file": None,
     "editor": None,
     "output": None,
+    "app": app,
+    "line_numbers": None,
+    "status_bar": None,
 }
 
 # === Toolbar Menu (Top) ===
@@ -23,11 +26,14 @@ create_menu(app, state)
 main_frame = ctk.CTkFrame(app)
 main_frame.pack(fill="both", expand=True)
 
-# === Code Editor (Middle) ===
-state["editor"] = create_editor(main_frame)
+# === Code Editor (Middle) with line numbers ===
+state["editor"] = create_editor(main_frame, state)
 
 # === Output Console (Bottom) ===
 state["output"] = create_output(main_frame)
+
+# === Status Bar (Bottom) ===
+state["status_bar"] = create_status_bar(app, state)
 
 # === Default Template ===
 starter = """#include <stdio.h>
@@ -42,5 +48,9 @@ int main() {
 """
 state["editor"].insert("1.0", starter)
 highlight(state["editor"])
+
+# === Application info ===
+credits = "ChiX Editor by Prakhar Doneria | Open Source: github.com/PrakharDoneria/ChiX"
+state["status_bar"].set_credits(credits)
 
 app.mainloop()
