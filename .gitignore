@@ -1,0 +1,37 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# PyInstaller
+#  Usually created in dist/ and build/ folders
+dist/
+build/
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Environments
+.env
+.venv/
+venv/
+ENV/
+env.bak/
+env/
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS generated
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temp
+*.log
+temp/
