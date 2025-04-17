@@ -4,6 +4,7 @@ from core.runner import run_code
 from utils.highlighter import highlight
 import os
 import tkinter as tk
+import webbrowser  # Added for making the credits clickable
 
 # Unicode icons (no external files needed)
 ICONS = {
@@ -260,7 +261,59 @@ def create_menu(parent, state):
     )
     theme_btn.pack(side="right", padx=2)
     
+    # Add About button
+    about_btn = ctk.CTkButton(
+        theme_frame, 
+        text="About", 
+        command=lambda: show_about_dialog(parent), 
+        **button_style
+    )
+    about_btn.pack(side="right", padx=5)
+    
     return frame
+
+def show_about_dialog(parent):
+    about_window = ctk.CTkToplevel(parent)
+    about_window.title("About ChiX")
+    about_window.geometry("400x200")
+    about_window.resizable(False, False)
+    
+    # Center on screen
+    about_window.update_idletasks()
+    width = about_window.winfo_width()
+    height = about_window.winfo_height()
+    x = (about_window.winfo_screenwidth() // 2) - (width // 2)
+    y = (about_window.winfo_screenheight() // 2) - (height // 2)
+    about_window.geometry(f'{width}x{height}+{x}+{y}')
+    
+    # Add content
+    ctk.CTkLabel(
+        about_window,
+        text="ChiX - C Code Editor & Runner",
+        font=("Arial", 16, "bold")
+    ).pack(pady=(20, 5))
+    
+    ctk.CTkLabel(
+        about_window,
+        text="Created by Prakhar Doneria",
+        font=("Arial", 14)
+    ).pack(pady=5)
+    
+    ctk.CTkLabel(
+        about_window,
+        text="© 2025 - Open Source Project",
+        font=("Arial", 12)
+    ).pack(pady=5)
+    
+    # GitHub link
+    def open_github():
+        webbrowser.open("https://github.com/PrakharDoneria/ChiX")
+    
+    ctk.CTkButton(
+        about_window,
+        text="Visit GitHub Repository",
+        command=open_github
+    ).pack(pady=15)
 
 class StatusBar(ctk.CTkFrame):
     def __init__(self, parent, state, **kwargs):
@@ -275,15 +328,6 @@ class StatusBar(ctk.CTkFrame):
         )
         self.file_info.pack(side="left", padx=10)
         
-        # Credits/GitHub link (right side)
-        self.credits = ctk.CTkLabel(
-            self, 
-            text="", 
-            text_color="#ffffff", 
-            font=("Arial", 11)
-        )
-        self.credits.pack(side="right", padx=10)
-        
         # Line/column indicator (right side)
         self.position_indicator = ctk.CTkLabel(
             self, 
@@ -293,10 +337,32 @@ class StatusBar(ctk.CTkFrame):
         )
         self.position_indicator.pack(side="right", padx=10)
         
+        # Create a dedicated credits frame with distinct background
+        self.credits_frame = ctk.CTkFrame(self, fg_color="#333333", corner_radius=8)
+        self.credits_frame.pack(side="right", padx=10, pady=2)
+        
+        # Credits/GitHub link with enhanced visibility
+        self.credits = ctk.CTkLabel(
+            self.credits_frame, 
+            text="", 
+            text_color="#00FFFF",  # Cyan color for high contrast
+            font=("Arial", 12, "bold"),
+            padx=8,
+            pady=2,
+            cursor="hand2"  # Hand cursor to indicate clickability
+        )
+        self.credits.pack()
+        
+        # Make credits clickable
+        self.credits.bind("<Button-1>", self._open_github)
+        
         # Setup cursor position tracking
         if state and "editor" in state and state["editor"]:
             state["editor"].bind("<KeyRelease>", self.update_position)
             state["editor"].bind("<Button-1>", self.update_position)
+    
+    def _open_github(self, event):
+        webbrowser.open("https://github.com/PrakharDoneria/ChiX")
             
     def update_file_info(self, filepath=None):
         if filepath:
