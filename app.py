@@ -17,6 +17,7 @@ state = {
     "app": app,
     "line_numbers": None,
     "status_bar": None,
+    "mode": "compiler",  # Default mode is compiler
 }
 
 # === Toolbar Menu (Top) ===

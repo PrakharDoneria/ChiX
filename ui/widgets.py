@@ -216,10 +216,21 @@ def create_menu(parent, state):
     run_btn = ctk.CTkButton(
         run_frame, 
         text=f" {ICONS['run']} Run", 
-        command=lambda: run_code(state), 
+        command=lambda: run_code(state, mode=state.get("mode", "compiler")), 
         **{**button_style, "fg_color": "#1e4620", "hover_color": "#2e6830"}
     )
     run_btn.pack(side="left", padx=2)
+
+    # Add mode selection dropdown
+    mode_label = ctk.CTkLabel(frame, text="Mode: ", text_color="white")
+    mode_label.pack(side="left", padx=(10, 0))
+    mode_selector = ctk.CTkOptionMenu(
+        frame,
+        values=["compiler", "interpreter"],
+        command=lambda selected: state.update({"mode": selected})
+    )
+    mode_selector.set("compiler")  # Default mode
+    mode_selector.pack(side="left", padx=(5, 10))
     
     # Edit operations
     edit_frame = ctk.CTkFrame(frame, fg_color="transparent")
