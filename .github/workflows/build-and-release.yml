@@ -6,7 +6,7 @@ on:
       - main
 
 permissions:
-  contents: write  
+  contents: write
 
 jobs:
   build:
@@ -37,13 +37,12 @@ jobs:
           copy dist\ChiX.exe installer_input\ChiX.exe
 
       - name: Install Inno Setup
-        run: |
-          choco install innosetup --yes
+        run: choco install innosetup --yes
 
       - name: Build Inno Setup installer
+        shell: pwsh
         run: |
-          "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer_script.iss
-        # Make sure installer_script.iss is in the root of the repo
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" "installer_script.iss"
 
       - name: Get short commit hash
         id: vars
@@ -61,6 +60,6 @@ jobs:
           prerelease: false
           files: |
             dist/ChiX.exe
-            chix-setup.exe  # name matches OutputBaseFilename from .iss script
+            chix-setup.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
