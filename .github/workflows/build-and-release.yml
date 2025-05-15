@@ -19,7 +19,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'  
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
@@ -30,6 +30,20 @@ jobs:
       - name: Build executable with PyInstaller
         run: |
           pyinstaller main.py --onefile --noconsole --name ChiX --icon=generated-icon.png
+
+      - name: Copy EXE to setup input location
+        run: |
+          mkdir installer_input
+          copy dist\ChiX.exe installer_input\ChiX.exe
+
+      - name: Install Inno Setup
+        run: |
+          choco install innosetup --yes
+
+      - name: Build Inno Setup installer
+        run: |
+          "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer_script.iss
+        # Make sure installer_script.iss is in the root of the repo
 
       - name: Get short commit hash
         id: vars
@@ -45,6 +59,8 @@ jobs:
           name: "ChiX Editor Build ${{ env.SHORT_SHA }}"
           draft: false
           prerelease: false
-          files: dist/ChiX.exe
+          files: |
+            dist/ChiX.exe
+            chix-setup.exe  # name matches OutputBaseFilename from .iss script
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
