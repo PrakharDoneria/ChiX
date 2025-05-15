@@ -1,0 +1,153 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install flake8 pytest
+        
+    - name: Lint with flake8
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        # exit-zero treats all errors as warnings
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        
+  build-matrix:
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            artifact_name: ChiX-Linux.tar.gz
+            asset_name: chix-linux
+          - os: macos-latest
+            artifact_name: ChiX-macOS.dmg
+            asset_name: chix-macos
+          - os: windows-latest
+            artifact_name: ChiX-Windows.zip
+            asset_name: chix-windows
+    
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        
+    - name: Install system dependencies (Linux only)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y python3-tk python3-dev
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller
+        
+    - name: Build with PyInstaller (Linux/macOS)
+      if: matrix.os != 'windows-latest'
+      run: |
+        pyinstaller --name="ChiX" \
+                   --windowed \
+                   --onefile \
+                   --add-data="chix:chix" \
+                   --icon=generated-icon.png \
+                   main.py
+                   
+    - name: Build with PyInstaller (Windows)
+      if: matrix.os == 'windows-latest'
+      shell: pwsh
+      run: |
+        pyinstaller --name="ChiX" `
+                   --windowed `
+                   --onefile `
+                   --add-data="chix;chix" `
+                   --icon=generated-icon.png `
+                   main.py
+        
+    - name: Create artifact directory
+      run: mkdir -p dist/artifacts
+      shell: bash
+      
+    - name: Package application (Linux)
+      if: matrix.os == 'ubuntu-latest'
+      run: |
+        cd dist
+        tar -czvf artifacts/ChiX-Linux.tar.gz ChiX
+        
+    - name: Package application (macOS)
+      if: matrix.os == 'macos-latest'
+      run: |
+        cd dist
+        mkdir -p ChiX.app/Contents/MacOS
+        mkdir -p ChiX.app/Contents/Resources
+        mv ChiX ChiX.app/Contents/MacOS/
+        cp ../generated-icon.png ChiX.app/Contents/Resources/
+        
+        # Create Info.plist
+        cat > ChiX.app/Contents/Info.plist << EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleExecutable</key>
+    <string>ChiX</string>
+    <key>CFBundleIconFile</key>
+    <string>generated-icon.png</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.prakhardoneria.chix</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>ChiX</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
+    <key>NSHighResolutionCapable</key>
+    <true/>
+</dict>
+</plist>
+EOF
+        
+        # Create DMG
+        hdiutil create -volname "ChiX" -srcfolder ChiX.app -ov -format UDZO artifacts/ChiX-macOS.dmg
+      
+    - name: Package application (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        cd dist
+        powershell Compress-Archive -Path ChiX.exe -DestinationPath artifacts/ChiX-Windows.zip
+      
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ${{ matrix.asset_name }}
+        path: dist/artifacts/${{ matrix.artifact_name }}

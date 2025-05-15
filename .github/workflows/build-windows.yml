@@ -1,0 +1,62 @@
+name: Build Windows
+
+on:
+  push:
+    branches: [ main ]
+    tags:
+      - 'v*'
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller
+        
+    - name: Build with PyInstaller
+      run: |
+        pyinstaller --name="ChiX" `
+                   --windowed `
+                   --onefile `
+                   --add-data="chix;chix" `
+                   --icon=generated-icon.png `
+                   main.py
+      shell: pwsh
+        
+    - name: Create artifact directory
+      run: mkdir -p dist/artifacts
+      shell: bash
+      
+    - name: Package application
+      run: |
+        cd dist
+        powershell Compress-Archive -Path ChiX.exe -DestinationPath artifacts/ChiX-Windows.zip
+      
+    - name: Upload Windows artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: chix-windows
+        path: dist/artifacts/ChiX-Windows.zip
+        
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          dist/artifacts/ChiX-Windows.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
