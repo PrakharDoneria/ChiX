@@ -38,6 +38,31 @@ def run_code(state, mode="compiler"):
 
     if success:
         if platform.system() == "Windows":
-            subprocess.Popen(f'start cmd /k "{exe}"', shell=True)
-        else:
-            subprocess.Popen(['x-terminal-emulator', '-e', exe])
+            # /k keeps the window open after command execution
+            subprocess.Popen(f'start cmd /k ""{exe}" && pause"', shell=True)
+        elif platform.system() == "Darwin":  # macOS
+            # Use Terminal with "wait" option to keep window open
+            terminal_script = f'''osascript -e 'tell application "Terminal" to do script "cd {os.getcwd()} && \\"$PWD/{exe}\\" && echo -e "\\n[Program finished. Press Enter to close]" && read -n 1"' '''
+            subprocess.Popen(terminal_script, shell=True)
+        else:  # Linux
+            # Create a wrapper script to keep terminal open
+            wrapper_path = os.path.join("temp", "run_and_wait.sh")
+            with open(wrapper_path, "w") as wrapper:
+                wrapper.write(f'''#!/bin/bash
+"{exe}"
+echo -e "\\n[Program finished. Press Enter to close]"
+read -n 1
+''')
+            os.chmod(wrapper_path, 0o755)  # Make executable
+            
+            # Try different terminal emulators with priority
+            terminals = ['x-terminal-emulator', 'gnome-terminal', 'konsole', 'xterm']
+            for term in terminals:
+                try:
+                    if term == 'gnome-terminal' or term == 'konsole':
+                        subprocess.Popen([term, '--', wrapper_path])
+                    else:
+                        subprocess.Popen([term, '-e', wrapper_path])
+                    break
+                except FileNotFoundError:
+                    continue
