@@ -1,57 +1,91 @@
-# ChiX
+# ChiX - Professional VS Code-inspired C Code Editor
 
-ChiX is a Python-based GUI application designed to serve as a C Code Editor and Runner. It provides users with an intuitive interface to write, compile, and run C programs seamlessly. With features like syntax highlighting, file management, and output display, ChiX is ideal for developers and learners working with C.
+![ChiX Editor](generated-icon.png)
+
+ChiX is a professional-grade C code editor inspired by Visual Studio Code, designed to provide a modern, feature-rich development environment for C programming.
 
 ## Features
 
-- **C Code Editor**: Write and edit C code with syntax highlighting.
-- **C Code Runner**: Compile and run C programs directly from the application.
-- **File Management**: Create, open, save, and save-as C files within the application.
-- **Themed GUI**: Experience a modern dark-theme user interface.
+- **Modern UI/UX**: Clean, professional interface with intuitive controls
+- **Syntax Highlighting**: Advanced syntax highlighting for C code
+- **Line Numbers**: Clear line numbering with current line highlight
+- **Code Suggestions**: Intelligent code completion and suggestions
+- **Multi-File Editing**: Tabbed interface for working with multiple files
+- **Integrated Compiler**: Compile and run C code directly from the editor
+- **Theming Support**: Light and dark themes with customizable colors
+- **Project Management**: Organize and manage your C projects efficiently
 
 ## Installation
 
-To set up ChiX on your local machine, follow these steps:
+### Windows
 
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/PrakharDoneria/ChiX.git
-   cd ChiX
-   ```
+Download the latest release from the [Releases](https://github.com/PrakharDoneria/ChiX/releases) page and run the executable.
 
-2. Install the required Python libraries:
-   ```bash
-   pip install -r requirements.txt
-   ```
+### From Source
 
-3. Ensure you have GCC (MinGW) installed and added to your system's PATH.
+```bash
+# Clone the repository
+git clone https://github.com/PrakharDoneria/ChiX.git
+cd ChiX
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the application
+python main.py
+```
+
+## Requirements
+
+- Python 3.10+
+- Dependencies:
+  - customtkinter
+  - pygments
+  - keyboard
+  - ttkbootstrap
+  - pillow
+
+## Building from Source
+
+To build the executable yourself:
+
+```bash
+pip install pyinstaller
+pyinstaller main.py --onefile --noconsole --name ChiX --icon=generated-icon.png
+```
+
+The executable will be available in the `dist` directory.
 
 ## Usage
 
-1. Run the application:
-   ```bash
-   python app.py
-   ```
+1. Launch the application
+2. Create a new file or open an existing one
+3. Write your C code with syntax highlighting and code suggestions
+4. Compile and run your code using the built-in tools
+5. Use keyboard shortcuts for common operations
 
-2. Features available:
-   - Write C code in the editor.
-   - Use the toolbar to manage files (New, Open, Save, Save As).
-   - Compile and run your code using the "Compile & Run" button.
+## Keyboard Shortcuts
 
-## Code Structure
-
-- **`app.py`**: The main entry point of the application.
-- **`core/runner.py`**: Handles code compilation and execution.
-- **`utils/highlighter.py`**: Adds syntax highlighting for C code.
-- **`compiler/compiler.py`**: Checks GCC installation and compiles C code.
-- **`ui/widgets.py`**: Builds the GUI components.
-- **`ui/theme.py`**: Configures the application's theme.
-- **`core/file_ops.py`**: Manages file operations such as open and save.
+- `Ctrl+N`: New file
+- `Ctrl+O`: Open file
+- `Ctrl+S`: Save file
+- `Ctrl+Shift+S`: Save file as
+- `Ctrl+Tab`: Switch between tabs
+- `F5`: Compile and run code
+- `F9`: Toggle theme (Light/Dark)
+- `Ctrl+F`: Find in file
+- `Ctrl+H`: Replace in file
 
 ## Contributing
 
-Contributions are welcome! Feel free to fork the repository, raise issues, and submit pull requests.
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-## Acknowledgments
+## License
 
-Special thanks to the developers of `customtkinter` and `pygments` for their amazing libraries.
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Acknowledgements
+
+- Created by Prakhar Doneria
+- Inspired by Visual Studio Code's interface and functionality
+- Built with Python and CustomTkinter

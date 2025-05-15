@@ -3,35 +3,29 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# PyInstaller
-#  Usually created in dist/ and build/ folders
+# Distribution / packaging
 dist/
 build/
 *.spec
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Environments
-.env
-.venv/
+# Virtual environments
 venv/
-ENV/
-env.bak/
 env/
+ENV/
 
-# IDE files
+# IDE specific files
 .vscode/
 .idea/
-*.sublime-project
-*.sublime-workspace
+*.swp
+*.swo
 
-# OS generated
+# Local configuration
+.env
+.replit
+.upm/
+.pythonlibs/
+.cache/
+
+# OS specific files
 .DS_Store
 Thumbs.db
-desktop.ini
-
-# Temp
-*.log
-temp/
